@@ -1,4 +1,4 @@
-# 포디리플레이(4dreplay) 교육자료
+# EKS/ArgoCD HOL 자료
 
 아키텍쳐 (수정해야됨)
 https://cacoo.com/diagrams/lJFWTLVmZQD1JwWz/1803E
