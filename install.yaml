@@ -1,3 +1,4 @@
+---
 # This is an auto-generated file. DO NOT EDIT
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -9741,36 +9742,15 @@ spec:
   selector:
     app.kubernetes.io/name: argocd-repo-server
 ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   labels:
-#     app.kubernetes.io/component: server
-#     app.kubernetes.io/name: argocd-server
-#     app.kubernetes.io/part-of: argocd
-#   name: argocd-server
-# spec:
-#   ports:
-#   - name: http
-#     port: 80
-#     protocol: TCP
-#     targetPort: 8080
-#   - name: https
-#     port: 443
-#     protocol: TCP
-#     targetPort: 8080
-#   selector:
-#     app.kubernetes.io/name: argocd-server
----
 apiVersion: v1
 kind: Service
 metadata:
-  name: argocd-server
-  namespace: argocd
   labels:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: argocd-server
     app.kubernetes.io/part-of: argocd
+  name: argocd-server
+  namespace: argocd
   annotations:
     ## Health Check Settings
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP 
@@ -9785,23 +9765,54 @@ metadata:
     alb.ingress.kubernetes.io/target-group-attributes: "deregistration_delay.timeout_seconds=10, load_balancing.algorithm.type=least_outstanding_requests"
 spec:
   ports:
-    - port: 8080
-      targetPort: 8080
-      protocol: TCP
-  type: LoadBalancer
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
   selector:
     app.kubernetes.io/name: argocd-server
+  type: NodePort
+---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: argocd-server
+#   namespace: argocd
+#   labels:
+#     app.kubernetes.io/component: server
+#     app.kubernetes.io/name: argocd-server
+#     app.kubernetes.io/part-of: argocd
+#   annotations:
+#     ## Health Check Settings
+#     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP 
+#     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+#     alb.ingress.kubernetes.io/healthcheck-path: /healthz
+#     alb.ingress.kubernetes.io/healthcheck-interval-seconds: '10'
+#     alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+#     alb.ingress.kubernetes.io/success-codes: '200-399'
+#     alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+#     alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+#     # Attributes
+#     alb.ingress.kubernetes.io/target-group-attributes: "deregistration_delay.timeout_seconds=10, load_balancing.algorithm.type=least_outstanding_requests"
+# spec:
+#   ports:
+#     - name: http
+#       port: 8080
+#       targetPort: 8080
+#       protocol: TCP
+#   type: LoadBalancer
+#   selector:
+#     app.kubernetes.io/name: argocd-server
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: argocd-server-8080
-  namespace: argocd
   annotations:
     ## Ingress Core Settings
-    kubernetes.io/ingress.class: "alb"
+    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing # internet-facing
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 8080}]'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     ## Options 
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/group.name: argocd  #여러개의 ingress를 하나의 ALB로 통합하는 그룹으로 단일 ALB에서 Multi 
@@ -9821,7 +9832,7 @@ spec:
           service:
             name: argocd-server
             port:
-              number: 8080
+              number: 80
 ---
 apiVersion: v1
 kind: Service
@@ -10296,8 +10307,7 @@ spec:
               topologyKey: kubernetes.io/hostname
             weight: 5
       containers:
-      - command:
-        - argocd-server
+      - command: ["argocd-server","--insecure"]
         env:
         - name: ARGOCD_SERVER_INSECURE
           valueFrom:
