@@ -6,7 +6,7 @@ resource "aws_eks_node_group" "kube-practice" {
   ami_type        = "AL2_x86_64"
   capacity_type   = "SPOT"
   disk_size       = "20"
-  instance_types  = ["t3.medium"]
+  instance_types  = ["t3.large"]
   remote_access {
       ec2_ssh_key = var.ec2_key_name
       # source_security_group_ids = [aws_security_group.eks_node_group.id]
