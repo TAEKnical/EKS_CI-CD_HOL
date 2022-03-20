@@ -9771,38 +9771,7 @@ spec:
     targetPort: 8080
   selector:
     app.kubernetes.io/name: argocd-server
-  type: NodePort
----
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: argocd-server
-#   namespace: argocd
-#   labels:
-#     app.kubernetes.io/component: server
-#     app.kubernetes.io/name: argocd-server
-#     app.kubernetes.io/part-of: argocd
-#   annotations:
-#     ## Health Check Settings
-#     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP 
-#     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
-#     alb.ingress.kubernetes.io/healthcheck-path: /healthz
-#     alb.ingress.kubernetes.io/healthcheck-interval-seconds: '10'
-#     alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
-#     alb.ingress.kubernetes.io/success-codes: '200-399'
-#     alb.ingress.kubernetes.io/healthy-threshold-count: '2'
-#     alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
-#     # Attributes
-#     alb.ingress.kubernetes.io/target-group-attributes: "deregistration_delay.timeout_seconds=10, load_balancing.algorithm.type=least_outstanding_requests"
-# spec:
-#   ports:
-#     - name: http
-#       port: 8080
-#       targetPort: 8080
-#       protocol: TCP
-#   type: LoadBalancer
-#   selector:
-#     app.kubernetes.io/name: argocd-server
+  type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -9817,11 +9786,6 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/group.name: argocd  #여러개의 ingress를 하나의 ALB로 통합하는 그룹으로 단일 ALB에서 Multi 
     alb.ingress.kubernetes.io/group.order: "1" #supported values: [1-1000] 낮은 값이 우선순위
-    # alb.ingress.kubernetes.io/inbound-cidrs: "0.0.0.0/0" #"211.60.50.190/32"
-    #alb.ingress.kubernetes.io/security-groups: "sg-03c8c76ac93cb881d" # SECURITY GROUP
-    ## SSL Option
-    # alb.ingress.kubernetes.io/ssl-policy: "ELBSecurityPolicy-2016-08"
-    # alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:ap-northeast-2:239234376445:certificate/bc0002c3-409c-46aa-be8a-ec8e5152f010"
 spec:
   rules:
   - http:
